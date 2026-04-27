@@ -1,0 +1,32 @@
+#include "pain_device.h"
+
+namespace pain {
+
+PainDevice::PainDevice(PainWindow& window) : m_window(window) {
+  createInstance();
+  setupDebugMessenger();
+  pickPhysicalDevice();
+  createLogicalDevice();
+  createCommandPool();
+}
+
+void PainDevice::createInstance() {
+
+}
+
+void PainDevice::setupDebugMessenger() {
+
+}
+
+void PainDevice::pickPhysicalDevice() {
+
+}
+
+void PainDevice::createLogicalDevice() {
+
+}
+
+void PainDevice::createCommandPool() {
+
+}
+}
