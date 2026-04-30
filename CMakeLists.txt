@@ -21,14 +21,24 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE
     include
     Libs/include
+    ext
 )
- 
-# ── Find packages ─────────────────────────────────────────────────────────────
-find_package(glfw3 REQUIRED)
-find_package(Vulkan REQUIRED)
+add_subdirectory(glfw)
+include_directories(glfw/include)
+
+add_subdirectory(Vulkan-Headers)
+include_directories(Vulkan-Headers/include)
  
 # ── Link libraries ────────────────────────────────────────────────────────────
 target_link_libraries(${PROJECT_NAME} PRIVATE 
-    glfw
-    Vulkan::Vulkan
+    glfw 
+    Vulkan::Headers
 )
+
+if(UNIX)
+    find_package(Vulkan REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan)
+elseif(WIN32)
+    find_package(Vulkan REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan)
+endif()
