@@ -134,12 +134,7 @@ void PainDevice::DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtils
 }
 
 void PainDevice::createSurface() {
-  // UNIX
-  VkResult result;
-
-  result = glfwCreateWindowSurface(m_Instance, m_Window.m_Window, nullptr, &m_Surface);
-  ensure(result, "Failed to create Window surface");
-  std::cout << "Succesfully created Window Surface!\n";
+  m_Window.createWindowSurface(m_Instance, &m_Surface);
 }
 
 void PainDevice::pickPhysicalDevice() {
@@ -435,7 +430,7 @@ VkExtent2D PainDevice::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabili
     return capabilities.currentExtent;
   } else {
     int width, height;
-    glfwGetFramebufferSize(m_Window.m_Window, &width, &height);
+    m_Window.getFramebufferSize(&width, &height);
 
     extent = {
       static_cast<uint32_t>(width),

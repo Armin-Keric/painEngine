@@ -1,5 +1,8 @@
 #include "pain_window.h"
 #include <GLFW/glfw3.h>
+#include <iostream>
+#include <stdexcept>
+#include "pain_debug.h"
 
 namespace Pain {
 
@@ -14,20 +17,28 @@ void PainWindow::init() {
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
   glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-  m_Window = glfwCreateWindow(width, height, title, nullptr, nullptr);
+  m_pWindow = glfwCreateWindow(width, height, title, nullptr, nullptr);
 }
 
 void PainWindow::inputs() {
-  if (glfwGetKey(m_Window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-    glfwSetWindowShouldClose(m_Window, GLFW_TRUE);
+  if (glfwGetKey(m_pWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+    glfwSetWindowShouldClose(m_pWindow, GLFW_TRUE);
   }
+}
+
+void PainWindow::createWindowSurface(VkInstance instance, VkSurfaceKHR* surface) {
+  VkResult result;
+
+  result = glfwCreateWindowSurface(instance, m_pWindow, nullptr, surface);
+  ensure(result, "Failed to create Window surface");
+  std::cout << "Succesfully created Window Surface!\n";
 }
 
 PainWindow::~PainWindow() {
   // VULKAN
 
   // GLFW
-  glfwDestroyWindow(m_Window);
+  glfwDestroyWindow(m_pWindow);
   glfwTerminate();
 }
 

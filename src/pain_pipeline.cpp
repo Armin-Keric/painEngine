@@ -8,13 +8,14 @@ namespace Pain {
 
 PainPipeline::PainPipeline(const char* vertPath, const char* fragPath) {
   createGraphicsPipeline(vertPath, fragPath);
-  // std::cout << "Skipping PainPipeline creation\n";
 }
 
 std::vector<char> PainPipeline::readFile(const char* filePath) {
   std::cout << "Trying to open: " << filePath << std::endl;
-  std::cout << "Exists? " << std::filesystem::exists(filePath) << std::endl;
-  std::cout << std::filesystem::current_path() << std::endl;
+  if (!std::filesystem::exists(filePath)) {
+    std::cerr << "Failed to find: " << filePath << ". Did you perhaps forget to run compile.sh?\n";
+    throw std::runtime_error("ERROR, Look above");
+  }
   std::ifstream file(filePath, std::ios::ate | std::ios::binary);
 
   if (!file.is_open()) {

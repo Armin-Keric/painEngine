@@ -13,14 +13,18 @@ namespace Pain {
 
       const int getWidth() {return width;}
       const int getHeight() {return height;}
+      void getFramebufferSize(int* w, int* h) {glfwGetFramebufferSize(m_pWindow, w, h);}
 
-      bool shouldClose() { return glfwWindowShouldClose(this->m_Window); }
+      bool shouldClose() { return glfwWindowShouldClose(this->m_pWindow); }
       void inputs();
 
-      GLFWwindow* m_Window = nullptr;
+      void createWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
+
       ~PainWindow();
     private:
       void init();
+
+      GLFWwindow* m_pWindow = nullptr;
 
       const int width;
       const int height;
