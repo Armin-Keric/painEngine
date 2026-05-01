@@ -82,7 +82,7 @@ void PainDevice::createInstance() {
   VkApplicationInfo appCreateInfo;
   appCreateInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
   appCreateInfo.pNext = nullptr;
-  appCreateInfo.pApplicationName = "Vulkan woo";
+  appCreateInfo.pApplicationName = "Pain";
   appCreateInfo.applicationVersion = VK_MAKE_VERSION(0, 0, 1);
   appCreateInfo.pEngineName = "Pain Engine";
   appCreateInfo.engineVersion = VK_MAKE_VERSION(0, 0, 1);
