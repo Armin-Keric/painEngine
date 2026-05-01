@@ -20,7 +20,14 @@ set(SOURCES
 )
  
 add_executable(${PROJECT_NAME} ${SOURCES})
- 
+
+# Compile Shaders
+add_custom_target(compile_shaders ALL
+    COMMAND ${CMAKE_SOURCE_DIR}/compile.sh
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Running compile.sh"
+)
+
 # ── Include directories ───────────────────────────────────────────────────────
 target_include_directories(${PROJECT_NAME} PRIVATE
     include
