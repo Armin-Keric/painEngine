@@ -4,7 +4,7 @@
 
 - CMake 3.20+
 - C++20 compatible compiler
-- [Vulkan SDK](https://github.com/dargmuesli) installed on your system
+- [Vulkan SDK](https://vulkan.lunarg.com/sdk/home) installed on your system
 - Git
 
 ## Setup
