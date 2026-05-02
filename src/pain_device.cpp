@@ -43,9 +43,9 @@ VkFormat PainDevice::findSupportedFormat(const std::vector<VkFormat>& candidates
 
 void PainDevice::createImageWithInfo(const VkImageCreateInfo &imageInfo, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory)
 {
-  if (vkCreateImage(m_Device, &imageInfo, nullptr, &image) != VK_SUCCESS) {
-    throw std::runtime_error("failed to create image!");
-  }
+  VkResult result;
+  result = vkCreateImage(m_Device, &imageInfo, nullptr, &image);
+  ensure(result, "failed to create image!");
 
   VkMemoryRequirements memRequirements;
   vkGetImageMemoryRequirements(m_Device, image, &memRequirements);
@@ -103,16 +103,12 @@ void PainDevice::createInstance() {
   const char** glfwExtensions;
   glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionsCount);
 
-  // dbug print
-  std::cout << "Required GLFW Extensions: " << glfwExtensions << std::endl;
-
   std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionsCount);
   extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
   if (glfwExtensionsCount) {
     instanceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
     instanceCreateInfo.ppEnabledExtensionNames = extensions.data();
-    std::cout << "Registered extension\n";
   }
   
   uint32_t propertyCount = 0;
@@ -130,15 +126,12 @@ void PainDevice::createInstance() {
 
     populateDebugMessengerCreateInfo(debugCreateInfo);
     instanceCreateInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debugCreateInfo;
-    std::cout << "Registered layer\n";
   }
   
   // TODO Check if the extension is supported by our Vulkan drivers
   
   result = vkCreateInstance(&instanceCreateInfo, nullptr, &m_Instance);
   ensure(result, "Failed to create Instance");
-
-  std::cout << "Succesfully created instance!\n";
 }
 
 void PainDevice::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) {
@@ -201,8 +194,6 @@ void PainDevice::pickPhysicalDevice() {
     throw std::runtime_error("There are no devices that support vulkan!");
   }
 
-  std::cout << "Found " << deviceCount << " device(s)\n";
-
   std::vector<VkPhysicalDevice> availableDevices(deviceCount);
   result = vkEnumeratePhysicalDevices(m_Instance, &deviceCount, availableDevices.data());
   ensure(result, "Failed to Enumerate Devices!");
@@ -214,10 +205,6 @@ void PainDevice::pickPhysicalDevice() {
     vkGetPhysicalDeviceMemoryProperties(availableDevices[i], &deviceMemProps);
 
     std::cout << "Found Device: " << deviceProps.deviceName << "\n";
-    std::cout << "Type: " << deviceProps.deviceType << "\n";
-    std::cout << "ID: " << deviceProps.deviceID << "\n";
-    std::cout << "Memory Type Count: " << deviceMemProps.memoryTypeCount << "\n";
-    std::cout << "Memory Heap Count: " << deviceMemProps.memoryHeapCount << "\n";
 
     if (isDeviceGud(availableDevices[i])) {
       m_PhysicalDevice = availableDevices[i];
@@ -227,14 +214,12 @@ void PainDevice::pickPhysicalDevice() {
 }
 
 bool PainDevice::isDeviceGud(VkPhysicalDevice device) {
-  VkResult result{};
+  VkResult result;
   VkPhysicalDeviceProperties deviceProps{};
   vkGetPhysicalDeviceProperties(device, &deviceProps);
   if (deviceProps.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && isDeviceSupportingDesiredExtensions(device)) {
     return true; // device is very gud
   }
-
-  std::cout << "The device " << deviceProps.deviceName << " is not gud! ;[ \n";
   return false;
 }
 
@@ -244,7 +229,6 @@ bool PainDevice::isDeviceSupportingDesiredExtensions(VkPhysicalDevice device) {
   uint32_t propertyCount = 0;
   result = vkEnumerateDeviceExtensionProperties(device, nullptr, &propertyCount, nullptr);
   ensure(result, "Failed to enumerate Properties count!");
-  std::cout << "Extensions found: " << propertyCount << "\n";
 
   std::vector<VkExtensionProperties> extProperties(propertyCount);
   result = vkEnumerateDeviceExtensionProperties(device, nullptr, &propertyCount, extProperties.data());
@@ -263,12 +247,13 @@ bool PainDevice::isDeviceSupportingDesiredExtensions(VkPhysicalDevice device) {
     }
   
     if (!found) {
+#ifdef _PAIN_DEBUG
       std::cout << "Missing extension: " << required << "\n";
+#endif
       return false;
     }
   }
 
-  std::cout << "All desired device extensions are supported!\n";
   return true;
 }
 
@@ -312,11 +297,9 @@ void PainDevice::createLogicalDevice() {
 
   result = vkCreateDevice(m_PhysicalDevice, &deviceCreateInfo, nullptr, &m_Device);
   ensure(result, "Failed to create Logical Device!");
-  std::cout << "Created Logical Device!\n";
 
   vkGetDeviceQueue(m_Device, indices.graphicsFamily, 0, &m_GraphicsQueue);
   vkGetDeviceQueue(m_Device, indices.presentFamily, 0, &m_PresentQueue);
-  std::cout << "Queued device Queue!\n";
 }
 
 QueueInfo PainDevice::pickQueueFamily(VkPhysicalDevice device) {
@@ -362,7 +345,6 @@ void PainDevice::createCommandPool() {
 
   result = vkCreateCommandPool(m_Device, &poolInfo, nullptr, &m_CommandPool);
   ensure(result, "Failed to create Command Pool!");
-  std::cout << "Succesfully created command pool!\n";
 }
 
 void PainDevice::createSwapchain() {
@@ -410,8 +392,6 @@ void PainDevice::createSwapchain() {
 
   m_SwapchainImageFormat = surfaceFormats.format;
   m_SwapchainExtent = extent;
-
-  std::cout << "Swapchain successfully created!\n";
 }
 
 SwapchainSupportDetails PainDevice::querySwapchainSupport() {
@@ -478,7 +458,6 @@ VkPresentModeKHR PainDevice::chooseSwapPresentMode() {
 
   for (const VkPresentModeKHR& presentMode : presentModes) {
     if (presentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
-      std::cout << "Physical device supports desired Present Mode\n";
       return presentMode;
     }
   }
@@ -547,7 +526,6 @@ void PainDevice::createImageViews() {
     result = vkCreateImageView(m_Device, &ivCreateInfo, nullptr, &m_ImageViews[i]);
     ensure(result, "Failed to create Image View!");
   }
-  std::cout << "Succesfully creates Image View!\n";
 }
 
 void PainDevice::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) {

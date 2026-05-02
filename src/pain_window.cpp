@@ -31,7 +31,6 @@ void PainWindow::createWindowSurface(VkInstance instance, VkSurfaceKHR* surface)
 
   result = glfwCreateWindowSurface(instance, m_pWindow, nullptr, surface);
   ensure(result, "Failed to create Window surface");
-  std::cout << "Succesfully created Window Surface!\n";
 }
 
 PainWindow::~PainWindow() {

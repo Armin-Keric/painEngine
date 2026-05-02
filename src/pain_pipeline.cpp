@@ -15,6 +15,7 @@ PainPipeline::PainPipeline(PainDevice& device, const char* vertPath, const char*
 }
 
 std::vector<char> PainPipeline::readFile(const char* filePath) {
+#ifdef _PAIN_DEBUG
   std::cout << "Trying to open: " << filePath << std::endl;
   if (!std::filesystem::exists(filePath)) {
     std::cerr << "Failed to find: " << filePath << ". Did you perhaps forget to run compile.sh?\n";
@@ -22,6 +23,7 @@ std::vector<char> PainPipeline::readFile(const char* filePath) {
   } else {
     std::cout << "Found file\n";
   }
+#endif
   std::ifstream file(filePath, std::ios::ate | std::ios::binary);
 
   if (!file.is_open()) {
@@ -118,8 +120,6 @@ void PainPipeline::createShaderModule(const std::vector<char>& code, VkShaderMod
 
   result = vkCreateShaderModule(m_PainDevice.device(), &shaderModuleCreateInfo, nullptr, shaderModule);
   ensure(result, "Failed to create shader module!");
-
-  std::cout << "Succesfully created shader module!" << std::endl;
 }
 
 void PainPipeline::bind(VkCommandBuffer cmdBuff)
